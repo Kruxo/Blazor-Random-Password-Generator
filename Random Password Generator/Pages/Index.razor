@@ -3,11 +3,16 @@
 
 
 
-<div class="centered-container">
-    <div class="container text-center">
+<div class="centered-container" style="padding: 0 25px;">
 
-        <div class="row">
+    <div class="container text-center" >
+
+        <div class="row" >
+
             <div class="col">
+                <a href="https://haonguyen.netlify.app/" class="home-icon">
+                    <i class="fas fa-home"></i>
+                </a>
                 <h1 style="font-weight: bold; font-size: 45px; margin-bottom: 0;">Random </h1>
                 <h1>Password Generator</h1>
                 <div style="border-top: 1px solid white; padding-bottom: 25px;"></div>
@@ -64,10 +69,24 @@
 </div>
 
 <style>
+    .home-icon {
+        position: absolute;
+        top: 20px;
+        left: 25px;
+        font-size: 24px;
+        color: #fff;
+        text-decoration: none;
+    }
+
+        .home-icon:hover {
+            color: #ff477e;
+            transform: scale(1.1);
+            transition: 0.3s ease;
+        }
 
     .container {
         width: 450px;
-        height: 480px;
+        height: 510px;
         background: linear-gradient(135deg, #76b5c5 0%, #9f86c0 100%);
         border-radius: 15px;
         padding: 20px;
