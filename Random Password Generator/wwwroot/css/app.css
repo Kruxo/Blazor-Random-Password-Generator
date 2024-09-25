@@ -5,6 +5,7 @@
     padding: 0;
     margin: 0;
     outline: none;
+    background-color: #0d0d0d
 }
 
 
@@ -14,6 +15,7 @@
     width: 8rem;
     height: 8rem;
     margin: 20vh auto 1rem auto;
+
 }
 
 .loading-progress circle {
