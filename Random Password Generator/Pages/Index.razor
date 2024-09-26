@@ -1,14 +1,9 @@
 ﻿@page "/"
 @inject IJSRuntime JS
 
-
-
 <div class="centered-container" style="padding: 0 25px;">
-
     <div class="container text-center" >
-
         <div class="row" >
-
             <div class="col">
                 <a href="https://haonguyen.netlify.app/" class="home-icon">
                     <i class="fas fa-home"></i>
@@ -17,18 +12,15 @@
                 <h1>Password Generator</h1>
                 <div style="border-top: 1px solid white; padding-bottom: 25px;"></div>
             </div>
-            
         </div>
 
-
         <div class="row">
-              <div class="input-group">
-
-                  <input type="text" class="form-control" value="@generatedPassword" readonly>
-                  <button class="btn btn-outline-secondary" @onclick="CopyToClipboard">
-                      <i class="fas fa-copy"></i>
-                  </button>
-              </div>
+            <div class="input-group">
+                <input type="text" class="form-control" value="@generatedPassword" readonly>
+                <button class="btn btn-outline-secondary" @onclick="CopyToClipboard">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
 
             <div class="d-flex justify-content-between mb-3" style="padding-top: 5px;">
                 <div class="password-strength-bar" style="background-color: @FirstBarColor;"></div>
@@ -42,30 +34,35 @@
                     <label class="title">PASSWORD LENGTH</label>
                     <span style="color: white;">@PasswordLength</span>
                 </div>
-                <input type="range" class="form-range" min="8" max="20" @bind="PasswordLength" @oninput="GeneratePassword">
+                <!-- Created a new method called OnSliderChange and uses Razor oninput to solve the issue we had with onclick 
+                 that passwordlength where that the action didnt take place until after an additional action. Now the slider
+                 updates the strength bar in real time instead of until we let go of the slider and then make an additional slider move -->
+                <input type="range" class="form-range" min="8" max="20" value="@PasswordLength" @oninput="OnSliderChanged"> 
+
             </div>
 
             <label class="title" style="padding-top: 20px; padding-bottom: 10px;">PASSWORD SETTINGS</label>
             <div class="password-settings">
 
+                <!-- Create a new method OncheckboxChange and we use onchange instead of onclick. Here we also that the issue that the password
+                were incorrectly updated until an addtiona action took place. So it made it look not as dynamic 
+                and onchange changes that because it immediately triggers after the checkbox bool value chagnes-->
                 <div class="password-settings">
-                    <input class="form-check-input" type="checkbox" @bind="IncludeLowercase" @onclick="GeneratePassword" id="lowercaseSwitch" disabled>
+                    <input class="form-check-input" type="checkbox" checked="@IncludeLowercase" @onchange="(e) => OnCheckboxChanged(e, nameof(IncludeLowercase))" id="lowercaseSwitch" disabled>
                     <label class="form-check-label" for="lowercaseSwitch">LOWERCASE LETTERS (a-z)</label>
 
-                    <input class="form-check-input" type="checkbox" @bind="IncludeUppercase" @onclick="GeneratePassword" id="uppercaseSwitch">
+                    <input class="form-check-input" type="checkbox" checked="@IncludeUppercase" @onchange="(e) => OnCheckboxChanged(e, nameof(IncludeUppercase))" id="uppercaseSwitch">
                     <label class="form-check-label" for="uppercaseSwitch">UPPERCASE LETTERS (A-Z)</label>
 
-                    <input class="form-check-input" type="checkbox" @bind="IncludeNumbers" @onclick="GeneratePassword" id="numbersSwitch">
+                    <input class="form-check-input" type="checkbox" checked="@IncludeNumbers" @onchange="(e) => OnCheckboxChanged(e, nameof(IncludeNumbers))" id="numbersSwitch">
                     <label class="form-check-label" for="numbersSwitch">NUMBERS (0-9)</label>
 
-                    <input class="form-check-input" type="checkbox" @bind="IncludeSymbols" @onclick="GeneratePassword" id="symbolsSwitch">
+                    <input class="form-check-input" type="checkbox" checked="@IncludeSymbols" @onchange="(e) => OnCheckboxChanged(e, nameof(IncludeSymbols))" id="symbolsSwitch">
                     <label class="form-check-label" for="symbolsSwitch">SYMBOLS (#$!)</label>
                 </div>
-                
             </div>
         </div>
     </div>
-    
 </div>
 
 <style>
@@ -215,29 +212,31 @@
     }
 </style>
 
-
 @code {
     private string generatedPassword = "";
     private int PasswordLength = 8;
-    private bool IncludeUppercase = false;
+    private bool IncludeUppercase = true;
     private bool IncludeLowercase = true;
-    private bool IncludeNumbers = false;
+    private bool IncludeNumbers = true;
     private bool IncludeSymbols = true;
     private string FirstBarColor = "#ccc";
     private string SecondBarColor = "#ccc";
     private string ThirdBarColor = "#ccc";
     private string FourthBarColor = "#ccc";
-
     private readonly string uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private readonly string lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
     private readonly string numberChars = "0123456789";
     private readonly string symbolChars = "!@$%^&*()_+[]{}|;:,.<>?";
 
-    protected override void OnInitialized() {
+    //Generates the password method on program start
+    protected override void OnInitialized()
+    {
         GeneratePassword();
     }
 
-    public void GeneratePassword() {
+    //Generates password depending on what checkboxes is checked and then randomizes the characters depending on the password length
+    public void GeneratePassword()
+    {
         var random = new Random();
         string characterPool = "";
 
@@ -246,13 +245,9 @@
         if (IncludeNumbers) characterPool += numberChars;
         if (IncludeSymbols) characterPool += symbolChars;
 
-        if (string.IsNullOrEmpty(characterPool)) {
-            generatedPassword = "Please select at least one option!";
-            return;
-        }
-
         var password = new char[PasswordLength];
-        for (int i = 0; i < PasswordLength; i++) {
+        for (int i = 0; i < PasswordLength; i++)
+        {
             password[i] = characterPool[random.Next(characterPool.Length)];
         }
 
@@ -260,23 +255,15 @@
         EvaluatePasswordStrength();
     }
 
-    private void EvaluatePasswordStrength() {
-
+    //Updates the strength bar depending on password length
+    private void EvaluatePasswordStrength()
+    {
         int strengthScore = 0;
 
-        if (PasswordLength <= 9) {
-            strengthScore = 1;
-        } 
-        else if (PasswordLength <= 13) 
-        {
-            strengthScore = 2;
-        }
-        else if (PasswordLength <= 17)
-        {
-            strengthScore = 3;
-        } else {
-            strengthScore = 4;
-        }
+        if (PasswordLength <= 9) strengthScore = 1; //Removed brackets since we only have one line of code inside the scope
+        else if (PasswordLength <= 13) strengthScore = 2;
+        else if (PasswordLength <= 17) strengthScore = 3;
+        else strengthScore = 4;
 
         switch (strengthScore)
         {
@@ -297,6 +284,38 @@
                 break;
 
         }
+    }
+
+    //Takes two parameters. ChangeEventArgs e that contains information about the checkbox change event, if the new value is true/false
+    //option parameters specifies which option out of the four checkboxes is being updated.
+    private void OnCheckboxChanged(ChangeEventArgs e, string option)
+    {
+        bool isChecked = (bool)e.Value; //Converts the value from the checkbox change event to a boolean
+
+
+        switch (option)
+        {
+            case nameof(IncludeLowercase):
+                IncludeLowercase = isChecked; //If the option is "IncludeLowercase", set it to the new value (true/false)
+                break;
+            case nameof(IncludeUppercase):
+                IncludeUppercase = isChecked;
+                break;
+            case nameof(IncludeNumbers):
+                IncludeNumbers = isChecked;
+                break;
+            case nameof(IncludeSymbols):
+                IncludeSymbols = isChecked;
+                break;
+        }
+
+        GeneratePassword();
+    }
+
+    private void OnSliderChanged(ChangeEventArgs e)
+    {
+        PasswordLength = int.Parse(e.Value.ToString()); //Updates passwords length based on slider input
+        GeneratePassword(); //Re-generates the password and in turn re-evaluates the password strength => bar colors changes in real time
     }
 
     private async Task CopyToClipboard() {
