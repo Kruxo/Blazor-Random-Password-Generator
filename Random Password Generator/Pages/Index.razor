@@ -240,18 +240,40 @@
         var random = new Random();
         string characterPool = "";
 
-        if (IncludeUppercase) characterPool += uppercaseChars;
-        if (IncludeLowercase) characterPool += lowercaseChars;
-        if (IncludeNumbers) characterPool += numberChars;
-        if (IncludeSymbols) characterPool += symbolChars;
+        //Temporary list to ensure each character type is included at least once
+        List<char> passwordChars = new List<char>();
 
-        var password = new char[PasswordLength];
-        for (int i = 0; i < PasswordLength; i++)
+        //Ensures that at least one character from each selected pool is included
+        if (IncludeUppercase)
         {
-            password[i] = characterPool[random.Next(characterPool.Length)];
+            passwordChars.Add(uppercaseChars[random.Next(uppercaseChars.Length)]);
+            characterPool += uppercaseChars;
+        }
+        if (IncludeLowercase)
+        {
+            passwordChars.Add(lowercaseChars[random.Next(lowercaseChars.Length)]);
+            characterPool += lowercaseChars;
+        }
+        if (IncludeNumbers)
+        {
+            passwordChars.Add(numberChars[random.Next(numberChars.Length)]);
+            characterPool += numberChars;
+        }
+        if (IncludeSymbols)
+        {
+            passwordChars.Add(symbolChars[random.Next(symbolChars.Length)]);
+            characterPool += symbolChars;
         }
 
-        generatedPassword = new string(password);
+        //Fills the remaining length of the password randomly from the combined pool
+        while (passwordChars.Count < PasswordLength)
+        {
+            passwordChars.Add(characterPool[random.Next(characterPool.Length)]);
+        }
+
+        //Shuffles the password to guarantee randomness
+        generatedPassword = new string(passwordChars.OrderBy(x => random.Next()).ToArray());
+
         EvaluatePasswordStrength();
     }
 
